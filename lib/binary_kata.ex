@@ -26,7 +26,15 @@ defmodule BinaryKata do
   @doc """
   Add a UTF8 BOM if not exists.
   """
-  def add_utf8_bom(_), do: raise "TODO: Implement me!"
+  def add_utf8_bom(binary) do
+    case has_utf8_bom?(binary) do
+      true ->
+        binary
+
+      false ->
+        @bom <> binary
+    end
+  end
 
   @doc """
   Detecting types of images by their first bytes / magic numbers.
