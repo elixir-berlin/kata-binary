@@ -1,12 +1,12 @@
 defmodule BinaryKata do
 
-  @bom <<0xEF, 0xBB, 0xBF>>
+  @utf8_bom <<0xEF, 0xBB, 0xBF>>
 
   @doc """
   Should return `true` when given parameter start with UTF8 Byte-Order-Mark, otherwise `false`.
   @see https://en.wikipedia.org/wiki/Byte_order_mark
   """
-  def has_utf8_bom?(<<bom::binary-size(3), _other::binary>>) when bom == @bom, do: true
+  def has_utf8_bom?(<<bom::binary-size(3), _::binary>>) when bom == @utf8_bom, do: true
   def has_utf8_bom?(_), do: false
 
   @doc """
@@ -15,8 +15,8 @@ defmodule BinaryKata do
   def remove_utf8_bom(binary) do
     case has_utf8_bom?(binary) do
       true ->
-        <<_bom::binary-size(3), other::binary>> = binary
-        other
+        <<_::binary-size(3), without_utf8_bom::binary>> = binary
+        without_utf8_bom
 
       false ->
         binary
@@ -32,7 +32,7 @@ defmodule BinaryKata do
         binary
 
       false ->
-        @bom <> binary
+        @utf8_bom <> binary
     end
   end
 
