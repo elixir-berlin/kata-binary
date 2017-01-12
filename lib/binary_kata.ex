@@ -1,10 +1,13 @@
 defmodule BinaryKata do
 
   @utf8_bom <<0xEF, 0xBB, 0xBF>>
+
   @jpeg_magic <<0xFF, 0xD8, 0xFF>>
   @png_magic <<0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A>>
   @gif_magic1 <<0x47, 0x49, 0x46, 0x38, 0x37, 0x61>>
   @gif_magic2 <<0x47, 0x49, 0x46, 0x38, 0x39, 0x61>>
+
+  @arp_ipv4 <<0x08, 0x00>>
 
   @doc """
   Should return `true` when given parameter start with UTF8 Byte-Order-Mark, otherwise `false`.
@@ -73,12 +76,37 @@ defmodule BinaryKata do
 
   @see https://en.wikipedia.org/wiki/Address_Resolution_Protocol
   """
-  def parse_arp_packet_ipv4!(_) do
-      raise "TODO: Implement me!"
+  def parse_arp_packet_ipv4!(<<_htype::binary-size(2),
+                                ptype::binary-size(2),
+                                 hlen::integer-size(8),
+                                 plen::integer-size(8),
+                            operation::integer-size(16),
+                                  sha::binary-size(hlen),
+                                  spa::binary-size(plen),
+                                  tha::binary-size(hlen),
+                                  tpa::binary-size(plen),
+                                  _::binary>>) when ptype == @arp_ipv4 do
+    # return
+    {arp_operation_to_atom(operation),
+     hw_addr_to_number(sha, hlen),
+     ipv4_to_tuple(spa),
+     hw_addr_to_number(tha, hlen),
+     ipv4_to_tuple(tpa)}
   end
 
   # Helper for `parse_arp_packet_ipv4!`
   defp arp_operation_to_atom(1), do: :request
   defp arp_operation_to_atom(2), do: :response
+
+  defp hw_addr_to_number(binary, length) do
+    bit_length = length * 8
+    <<number::integer-size(bit_length)>> = binary
+    number
+  end
+
+  defp ipv4_to_tuple(<<a::integer-size(8),
+                       b::integer-size(8),
+                       c::integer-size(8),
+                       d::integer-size(8)>>), do: {a, b, c, d}
 
 end
